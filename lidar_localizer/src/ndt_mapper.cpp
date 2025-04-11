@@ -315,9 +315,13 @@ void NDTMapper::getTF() {
           "Failed to get parameter from server. Please CHECK THE CONFIG FILE");
     else
       LOG(INFO) << "LOAD base2LiDAR TF success from CONFIG file, baselink to "
-                   "LiDAR: [x,y,z,roll,pitch,yaw]"
-                << b2l_tf[0] << b2l_tf[1] << b2l_tf[2] << b2l_tf[3] << b2l_tf[4]
-                << b2l_tf[5];
+                   "LiDAR: [x, y, z, roll, pitch, yaw] = ["
+                << b2l_tf[0] << ", "
+                << b2l_tf[1] << ", "
+                << b2l_tf[2] << ", "
+                << b2l_tf[3] << ", "
+                << b2l_tf[4] << ", "
+                << b2l_tf[5] << "]";
 
     tf_baselink2primarylidar.transform.translation.x = b2l_tf[0];
     tf_baselink2primarylidar.transform.translation.y = b2l_tf[1];
@@ -343,10 +347,6 @@ void NDTMapper::getTF() {
 
     Eigen::Translation3f tl_btol(tf_x, tf_y, tf_z); // tl: translation
 
-    LOG(INFO) << "LOAD TF success, baselink to LiDAR: [x,y,z,roll,pitch,yaw]: "
-              << tf_x << " , "<< tf_y << " , "<< tf_z << " , "<< tf_roll << " , "<< tf_pitch
-              << " , " << tf_yaw;
-
     tf2::Quaternion quat(tf_baselink2primarylidar.transform.rotation.x,
                         tf_baselink2primarylidar.transform.rotation.y,
                         tf_baselink2primarylidar.transform.rotation.z,
@@ -354,6 +354,10 @@ void NDTMapper::getTF() {
 
     tf2::Matrix3x3 mat(quat);
     mat.getRPY(tf_roll, tf_pitch, tf_yaw);
+
+    LOG(INFO) << "LOAD TF success, baselink to LiDAR: [x, y, z, roll, pitch, yaw]: "
+              << tf_x << " , "<< tf_y << " , "<< tf_z << " , "<< tf_roll << " , "<< tf_pitch
+              << " , " << tf_yaw;
 
     Eigen::AngleAxisf rot_x_btol(tf_roll,
                                  Eigen::Vector3f::UnitX()); // rot: rotation
@@ -413,7 +417,7 @@ NDTMapper::filterPoints(const sensor_msgs::PointCloud2::ConstPtr &input) {
   double p_radius;
   pcl::fromROSMsg(*input, tmp);
 
-#pragma omp parallel for num_threads(4)
+// #pragma omp parallel for num_threads(4)
   for (pcl::PointCloud<pcl::PointXYZI>::const_iterator item = tmp.begin();
        item != tmp.end(); item++) {
     p.x = (double)item->x;
